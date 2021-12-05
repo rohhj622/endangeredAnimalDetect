@@ -26,7 +26,10 @@
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
+    <!-- socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+    <!--실시간 이미지 전송-->
+    <script src="js/rtsp_socket_io.js"></script>
 
     <title>멸종위기 종 감지</title>
 </head>
@@ -34,7 +37,7 @@
     <div class="container" style="    margin-top: 59px;">
         <div class="row justify-content-md-center">
             <div class="col-lg-6">
-                <img src="images/endangeredA.jpg" class="rounded" style="object-fit: cover; width: 100%; ">
+                <img id="img1" src="images/endangeredA.jpg" class="rounded" style="object-fit: cover; width: 100%; ">
 
                 </img>
             </div>
@@ -102,6 +105,7 @@
 
             getAlarm();
             getAlarmChart();
+            makeSocket(1);
 
         };
 
