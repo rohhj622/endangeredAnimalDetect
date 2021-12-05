@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    
+    <!-- 합쳐지고 최소화된 최신 CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+    <!-- 부가적인 테마 -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+
+    <!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+
+    <!-- grid.js -->
+    <link href="https://unpkg.com/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+
+    <script src="https://unpkg.com/gridjs/dist/gridjs.umd.js"></script>
+
+    <!-- google chart -->
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    <title>멸종위기 종 감지</title>
+</head>
+<body>
+    <div class="container" style="    margin-top: 59px;">
+        <div class="row justify-content-md-center">
+            <div class="col-lg-6">
+                <img src="images/endangeredA.jpg" class="rounded" style="object-fit: cover; width: 100%; ">
+
+                </img>
+            </div>
+            <div class="col-lg-6">
+                <div class="row">
+                    <div id="wrapper"></div>
+                </div>
+                <div class="row">
+                    <canvas id="chart_div" width="500" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const grid1 = new gridjs.Grid({
+            // width: 500,
+            height: 300,
+            columns: [
+                { id:"al_time" ,name:"감지시각", width:200},
+                { id:"a_name" ,name:"국명", width:150},
+                { id:"a_name_eng" ,name:"영문명", width:200},
+                { id:"al_cctv_num" ,name:"감지한 CCTV", width:100},
+                
+            ],
+            data: [
+                {al_time: "John", a_id:"john@example.com"}
+            ]
+        }).render(document.getElementById("wrapper"));
+
+        var labels = [
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+        ];
+        
+        var data = {
+            labels: labels,
+            datasets: [{
+                label: '동물별 감지 횟수',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: [0, 10, 5, 2, 20, 30, 45],
+            }]
+        };
+
+        var config = {
+            type: 'bar',
+            data: data,
+            options: {
+                scales: {
+                y: {
+                    beginAtZero: true
+                }
+                }
+            },
+        };
+        var ctx = document.getElementById('chart_div'); // node
+
+        var myChart = new Chart(ctx, config);
+
+        window.onload = function(){
+
+            getAlarm();
+            getAlarmChart();
+
+        };
+
+        function getAlarm(){
+            $.ajax({
+                url: '/alarmList',
+                dataType: 'json',
+                type: 'GET',
+                success: function(result) {
+                    if (result) {
+                        console.log(result);
+                        grid1.updateConfig({
+                            data: result
+
+                        }).forceRender();
+
+                    }
+                },
+                error: function(err){
+                    console.log(err)
+                }
+            });
+        };
+
+        function getAlarmChart(){
+            $.ajax({
+                url: '/alarmChart',
+                dataType: 'json',
+                type: 'GET',
+                success: function(result) {
+                    if (result) {
+                        console.log(result);
+
+                        config.data.labels = new Array();
+                        config.data.datasets[0].data = new Array();
+
+                        for(var i=0; i<result.length; i++){
+                            config.data.labels.push(result[i].a_name);
+                            config.data.datasets[0].data.push(result[i].cnt);
+                        }
+
+                        myChart.update();	//차트 업데이트
+                    }
+                },
+                error: function(err){
+                    console.log(err)
+                }
+            });
+        };
+
+    </script>   
+</body>
+</html>
