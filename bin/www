@@ -20,6 +20,30 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+var io = require('socket.io')(server); // SOCKET 모듈
+var rtsp = require('rtsp-ffmpeg'); // 영상 인코딩 모듈
+
+var uri = 'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mp4',
+    stream = new rtsp.FFMpeg({input: uri}); // rtsp-ffmpeg module을 통해 ffmpeg을 실행시킴
+
+io.of('/cam1').on('connection', function(socket) { // /cam1 socket 연결되었을 경우
+
+  var pipeStream = function(data) {
+    socket.emit('data', data.toString('base64')); // img 데이터를 base64로 서버단에서 화면으로 보냄
+  };
+
+  stream.on('data', pipeStream);
+
+  socket.on('disconnect', function() {
+    stream.removeListener('data', pipeStream);
+  });
+  
+});
+
+
+app.get('/', function (req, res) {
+  res.sendFile(__dirname + '/index.html');
+});
 
 /**
  * Listen on provided port, on all network interfaces.

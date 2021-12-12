@@ -33,6 +33,7 @@ router.get('/alarmList', function (req,res,next){
   connection.end();
 
 });
+
 router.get('/alarmChart', function (req,res,next){
 
   var returnRes = null;
