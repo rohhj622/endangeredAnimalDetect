@@ -14,10 +14,19 @@
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
     "jqeury": "0.0.1-security",
+<<<<<<< HEAD
     "morgan": "~1.9.1",
     "mysql": "^2.18.1",
     "rtsp-ffmpeg": "0.0.15",
     "socket-io": "^1.0.0",
     "socket.io": "^4.4.0"
+=======
+    "morgan": "^1.9.1",
+    "mysql": "^2.18.1",
+    "python-shell": "^3.0.1",
+    "rtsp-ffmpeg": "0.0.15",
+    "socket.io": "^4.4.0",
+    "socket.io-client": "^4.4.0"
+>>>>>>> c98ccb3483401c04ce89024c607430ae65eb23fe
   }
 }

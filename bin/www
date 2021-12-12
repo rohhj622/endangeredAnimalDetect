@@ -8,6 +8,8 @@ var app = require('../app');
 var debug = require('debug')('eaproject:server');
 var http = require('http');
 
+const rtsp = require('rtsp-ffmpeg');
+const PythonShell = require('python-shell')
 /**
  * Get port from environment and store in Express.
  */
@@ -52,6 +54,76 @@ app.get('/', function (req, res) {
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+
+var io = require('socket.io')(server, { cors: { origin: "*" } });
+var cams = [
+  // 'rtsp://184.72.239.149:1935/vod/mp4:BigBuckBunny_115k.mov',
+  //'rtsp://admin:admin123@192.168.1.116/cam/realmonitor?channel=1&subtype=0',
+  'rtsp://wowzaec2demo.streamlock.net/vod/mp4:BigBuckBunny_115k.mov'
+].map(function(uri, i){
+  var stream = new rtsp.FFMpeg({
+    input: uri
+    ,  rate : 5  // 출력 프레임(선택사항)
+    ,  resolution : '400x300'  // WxH 형식으로 출력 해상도 (선택사항) 
+    ,  quality : 3  // JPEG 압축 품질 수준(선택 사항) , 
+  });
+
+  stream.on('start', function() {
+    console.log('streaming ch_' + i +' started');
+  });
+  stream.on('stop', function() {
+    console.log('stream ch_' + i + ' stopped');
+  });
+
+  return stream;
+});
+var op = 1;
+
+cams.forEach(function(camStream, i) {
+  var namespace = io.of('c' + (i+1));
+  // console.log(namespace);
+  namespace.on('connection', function(wsocket){
+    //console.log('connected to c' + i);
+
+    var pipeStream = function(data){
+
+      console.log(data);
+
+      var base64 = data.toString("base64");      
+      var pyshell = require("python-shell");
+
+      pyshell = new pyshell.PythonShell(__dirname +'/public/python_code/image_deep_learning.py', {
+        pythonPath: 'C:/Users/HyunJinRoh/AppData/Local/Programs/Python/Python38/python.exe'
+     });
+
+
+      pyshell.send(base64);
+      pyshell.on("message", rebase64 => {
+        var err = null;
+        
+        //base64 문자열을  Buffer(bytes)타입으로 디코딩
+        result = Buffer.from(rebase64,"base64");
+        // console.log(result);
+        // fs.writeFileSync("result.jpeg", result);
+      });
+      
+      pyshell.end(err => {
+          if (err) {
+            console.log(err);
+          }
+      });
+
+      wsocket.emit('data', data);
+    };
+
+    camStream.on('data', pipeStream);
+
+    wsocket.on('disconnect', function(){
+      // console.log('disconnected for c' + i);
+      camStream.removeListener('data', pipeStream);
+    });
+  });
+});
 
 /**
  * Normalize a port into a number, string, or false.

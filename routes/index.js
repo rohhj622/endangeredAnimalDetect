@@ -14,8 +14,8 @@ router.get('/alarmList', function (req,res,next){
 
   const connection = mysql.createConnection({
     host     : 'localhost',
-    user     : 'root',
-    password : 'shguswls12',
+    user     : 'rohhj622',
+    password : 'shguswls1!',
     database : 'eaproject'
   });
   
@@ -40,8 +40,8 @@ router.get('/alarmChart', function (req,res,next){
 
   const connection = mysql.createConnection({
     host     : 'localhost',
-    user     : 'root',
-    password : 'shguswls12',
+    user     : 'rohhj622',
+    password : 'shguswls1!',
     database : 'eaproject'
   });
   
